@@ -12,3 +12,6 @@ I'm likely reinventing the wheel a bit with this package, but it's also for lear
 
 This is my first module, and I'm by no means a python expert. 
 Feel free to contribute, and constructive criticism is always welcome.
+
+The future goal is to incorporate more of the UiPath API commands, 
+and if possible, make the calls easier to work with or simplify their usage.
