@@ -103,7 +103,7 @@ class Cloud:
         self._expires_in = content['expires_in']
         self.scope = content['scope']
 
-    def time_until_expire(self):
+    def seconds_until_auth_expires(self):
         if self._last_refresh is None:
             print('No initial authentication time.')
         elif self._last_refresh < 0:
