@@ -45,20 +45,29 @@ class Cloud:
         self.tenant_logical_name = tenant_logical_name
         self.account_logical_name = account_logical_name
 
-        self.url = lambda: f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
+        self.url = self.build_url()
         self.auth_url = r'https://account.uipath.com/oauth/token'
 
-        self.id_token = None  #
-        self.access_token = None  # Requires "regenerating" the access once per 24 hours (self._expires_in)
-        self.bearer_token = lambda: f'Bearer {self.access_token}'  # separated out to allow calling individually
-        self.header = lambda: {
+        self.id_token = None
+        self.access_token = None
+        self.bearer_token = self.build_bearer()
+        self.header = self.build_header()
+
+        self._last_refresh = None
+        self._expires_in = None
+        self.scope = None
+
+    def build_url(self):
+        return f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
+
+    def build_bearer(self):
+        return f'Bearer {self.access_token}'
+
+    def build_header(self):
+        return {
             'Authorization': self.bearer_token,
             'X-UIPATH-TenantName': self.tenant_logical_name
-        }  # Grabs the latest header information (the bearer token can change).
-
-        self._last_refresh = None  # Time in seconds since the last authentication or regeneration.
-        self._expires_in = None  # Duration of authentication a single instance has. Not configurable on the cloud.
-        self.scope = None  # The returned authorized activities for the access
+        }
 
     def authenticate(self):
         """ Authenticate with the Cloud Orchestrator """
@@ -76,6 +85,7 @@ class Cloud:
         response = requests.post(self.auth_url, headers=header, data=json.dumps(data))
         if not response.ok:
             print('Authentication failed with ', response, response.reason)
+        print(response, response.reason)
 
         content = json.loads(response.text)
 
