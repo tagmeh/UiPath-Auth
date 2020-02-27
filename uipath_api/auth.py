@@ -95,15 +95,6 @@ class Cloud:
         self._expires_in = content['expires_in']
         self.scope = content['scope']
 
-    def regenerate(self):
-        data = {
-            "grant_type": "refresh_token",
-            "client_id": "5v7PmPJL6FOGu6RB8I1Y4adLBhIwovQN",
-            "refresh_token": self.user_key
-        }
-
-        response = requests.post(self.auth_url, headers=self.header, data=json.dumps(data))
-
     def time_until_expire(self):
         if self._last_refresh is None:
             print('No initial authentication time.')
