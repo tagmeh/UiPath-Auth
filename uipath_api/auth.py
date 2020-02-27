@@ -2,7 +2,7 @@ import requests
 from requests import exceptions as request_exceptions
 import json
 import time
-
+import datetime
 
 class Local:
     """
@@ -103,3 +103,11 @@ class Cloud:
         else:
             elapsed = time.time() - self._last_refresh
             return self._expires_in - elapsed
+
+    def datetime_auth_expires_on(self):
+        return datetime.datetime.now() + datetime.timedelta(seconds=self.seconds_until_auth_expires())
+
+    def test_auth(self):
+        license_url = r'https://platform.uipath.com/odata/Settings/UiPath.Server.Configuration.OData.GetLicense'
+        response = requests.get(license_url, headers=self.header)
+        return response
