@@ -4,6 +4,7 @@ import json
 import time
 import datetime
 
+
 class Local:
     """
     Authenticates with the local UiPath Orchestrator
@@ -45,25 +46,32 @@ class Cloud:
         self.tenant_logical_name = tenant_logical_name
         self.account_logical_name = account_logical_name
 
-        self.url = self._build_url()
         self.auth_url = r'https://account.uipath.com/oauth/token'
 
         self.id_token = None
         self.access_token = None
-        self.bearer_token = self._build_bearer()
-        self.header = self._build_header()
 
         self._last_refresh = None
         self._expires_in = None
         self.scope = None
 
-    def _build_url(self):
-        return f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
+    @property
+    def url(self):
+        """ """
+        if self.orchestrator is None:
+            raise TypeError(
+                f'Missing Orchestrator string. (Currently "{type(self.orchestrator)}") Update the "orchestrator" attribute.')
+        else:
+            return f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
 
-    def _build_bearer(self):
+    @property
+    def bearer_token(self):
+        """ The access_token changes on each authentication. Lasts 24 hours as of 2/2020 (formerly 1 hour) """
         return f'Bearer {self.access_token}'
 
-    def _build_header(self):
+    @property
+    def header(self):
+        """  """
         return {
             'Authorization': self.bearer_token,
             'X-UIPATH-TenantName': self.tenant_logical_name
