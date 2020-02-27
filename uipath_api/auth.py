@@ -45,25 +45,25 @@ class Cloud:
         self.tenant_logical_name = tenant_logical_name
         self.account_logical_name = account_logical_name
 
-        self.url = self.build_url()
+        self.url = self._build_url()
         self.auth_url = r'https://account.uipath.com/oauth/token'
 
         self.id_token = None
         self.access_token = None
-        self.bearer_token = self.build_bearer()
-        self.header = self.build_header()
+        self.bearer_token = self._build_bearer()
+        self.header = self._build_header()
 
         self._last_refresh = None
         self._expires_in = None
         self.scope = None
 
-    def build_url(self):
+    def _build_url(self):
         return f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
 
-    def build_bearer(self):
+    def _build_bearer(self):
         return f'Bearer {self.access_token}'
 
-    def build_header(self):
+    def _build_header(self):
         return {
             'Authorization': self.bearer_token,
             'X-UIPATH-TenantName': self.tenant_logical_name
