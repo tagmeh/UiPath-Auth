@@ -93,7 +93,6 @@ class Cloud:
         response = requests.post(self.auth_url, headers=header, data=json.dumps(data))
         if not response.ok:
             print('Authentication failed with ', response, response.reason)
-        print(response, response.reason)
 
         content = json.loads(response.text)
 
@@ -102,6 +101,8 @@ class Cloud:
         self._last_refresh = time.time()
         self._expires_in = content['expires_in']
         self.scope = content['scope']
+
+        return response
 
     def seconds_until_auth_expires(self):
         if self._last_refresh is None:
