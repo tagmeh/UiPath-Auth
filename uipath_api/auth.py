@@ -13,7 +13,7 @@ class Local:
 
     def __init__(self, orchestrator: str, tenant: str, username: str, password: str):
         self.orchestrator = orchestrator
-        self.url = f"{self.orchestrator}/api/Account/Authenticate"
+        self.url = "{0}/api/Account/Authenticate".format(self.orchestrator)
         self.tenant = tenant
         self.username = username
         self.password = password
@@ -60,14 +60,14 @@ class Cloud:
         """ """
         if self.orchestrator is None:
             raise TypeError(
-                f'Missing Orchestrator string. (Currently "{type(self.orchestrator)}") Update the "orchestrator" attribute.')
+                'Missing Orchestrator string. (Currently "{0}") Update the "orchestrator" attribute.'.format(type(self.orchestrator)))
         else:
-            return f'{self.orchestrator}/{self.account_logical_name}/{self.tenant_logical_name}'
+            return '{0}/{1}/{2}'.format(self.orchestrator, self.account_logical_name, self.tenant_logical_name)
 
     @property
     def bearer_token(self):
         """ The access_token changes on each authentication. Lasts 24 hours as of 2/2020 (formerly 1 hour) """
-        return f'Bearer {self.access_token}'
+        return 'Bearer {0}'.format(self.access_token)
 
     @property
     def header(self):
@@ -108,7 +108,7 @@ class Cloud:
         if self._last_refresh is None:
             print('No initial authentication time.')
         elif self._last_refresh < 0:
-            print(f'API access expired {self._last_refresh - self._expires_in} seconds ago.')
+            print('API access expired {0} seconds ago.'.format(self._last_refresh - self._expires_in))
         else:
             elapsed = time.time() - self._last_refresh
             return self._expires_in - elapsed
