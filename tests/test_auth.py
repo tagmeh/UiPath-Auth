@@ -16,7 +16,6 @@ class TestAuth(unittest.TestCase):
 		"""
 		Tests the Cloud.authenticate and Cloud.test_auth() methods.
 		First iteration, this might change in the future.
-		:return:
 		"""
 		cloud = auth.Cloud(
 			user_key=self.config.get('CLOUD', 'user_key'),
