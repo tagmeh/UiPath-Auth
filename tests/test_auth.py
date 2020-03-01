@@ -14,8 +14,8 @@ class TestAuth(unittest.TestCase):
 
 	def test_cloud_auth(self):
 		"""
-		Tests the Cloud.authenticate and Cloud.test_auth() methods.
-		First iteration, this might change in the future.
+		First iteration assumes there's a uipath_api/files/creds.ini file with the below section and keys.
+		Tests the Cloud.authenticate method.
 		"""
 		cloud = auth.Cloud(
 			user_key=self.config.get('CLOUD', 'user_key'),
@@ -24,6 +24,5 @@ class TestAuth(unittest.TestCase):
 			account_logical_name=self.config.get('CLOUD', 'account_logical_name'),
 		)
 
-		cloud.authenticate()  # Authenticates the session
-		response = cloud.test_auth()  # Tests if the session is authenticated by requesting the Orch license.
+		response = cloud.authenticate()  # Authenticates the session
 		assert response.status_code == 200
