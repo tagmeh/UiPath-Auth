@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="uipath-api",  # Replace with your own username
-    version="0.0.3",
+    version="0.0.4",
     author="John Epperson",
     author_email="tagmeh@gmail.com",
     description="A wrapper for UiPath's Cloud/Local APIs",
@@ -18,5 +18,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7',
+    python_requires='>=3.5',
 )
