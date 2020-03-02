@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="uipath-api",  # Replace with your own username
-    version="0.1.0",
+    version="0.1.1",
     author="John Epperson",
     author_email="tagmeh@gmail.com",
     description="A wrapper for UiPath's Cloud/Local APIs",
