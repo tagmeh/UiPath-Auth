@@ -5,13 +5,36 @@ import time
 import datetime
 
 
-class Local:
+class Session:
+    access_token = None
+    _last_refresh = None
+    _expires_in = None
+    scope = None
+
+    def seconds_until_auth_expires(self):
+        if self._last_refresh is None:
+            print('No initial authentication time.')
+        elif self._last_refresh < 0:
+            print('API access expired {0} seconds ago.'.format(self._last_refresh - self._expires_in))
+        else:
+            elapsed = time.time() - self._last_refresh
+            return self._expires_in - elapsed
+
+    def datetime_auth_expires_on(self):
+        return datetime.datetime.now() + datetime.timedelta(seconds=self.seconds_until_auth_expires())
+
+
+class Local(Session):
     """
     Authenticates with the local UiPath Orchestrator
     Returns an api token.
     """
-
-    def __init__(self, orchestrator: str, tenant: str, username: str, password: str):
+    def __init__(self,
+                 orchestrator: str,
+                 tenant: str,
+                 username: str,
+                 password: str
+                 ):
         self.orchestrator = orchestrator
         self.tenant = tenant
         self.username = username
@@ -28,6 +51,21 @@ class Local:
             return "{0}/api/Account/Authenticate".format(self.orchestrator)
 
     @property
+    def bearer_token(self):
+        """ The access_token changes on each authentication. Lasts 24 hours as of 2/2020 (formerly 1 hour) """
+        if self.access_token:
+            return 'Bearer {0}'.format(self.access_token)
+        else:
+            return None
+
+    @property
+    def header(self):
+        """  """
+        return {
+            'Authorization': self.bearer_token,
+        }
+
+    @property
     def data(self):
         """"""
         return {
@@ -42,17 +80,38 @@ class Local:
         except request_exceptions.ConnectionError:
             return None
 
+        if not response.ok:
+            print('Authentication failed with ', response, response.reason)
+
+        content = json.loads(response.text)
+
+        self.access_token = content['result']
+        self._last_refresh = time.time()
+        self._expires_in = content['expires_in']
+        self.scope = content['scope']
+
+        return response
+
+    def test_auth(self):
+        """
+        Tests the current authentication session by attempting to pull the orchestrator license.
+        :return:
+        """
+        # Might be a different URL for the local orchestrator.
+        license_url = r'{}/odata/Settings/UiPath.Server.Configuration.OData.GetLicense'.format(self.orchestrator)
+        response = requests.get(license_url, headers=self.header)
         return response
 
 
-class Cloud:
+class Cloud(Session):
     def __init__(self,
-                 user_key,
-                 client_id,
-                 tenant_logical_name,
-                 account_logical_name,
+                 orchestrator: str,
+                 user_key: str,
+                 client_id: str,
+                 tenant_logical_name: str,
+                 account_logical_name: str,
                  ):
-        self.orchestrator = None
+        self.orchestrator = orchestrator
         self.user_key = user_key
         self.client_id = client_id
         self.tenant_logical_name = tenant_logical_name
@@ -61,11 +120,6 @@ class Cloud:
         self.auth_url = r'https://account.uipath.com/oauth/token'
 
         self.id_token = None
-        self.access_token = None
-
-        self._last_refresh = None
-        self._expires_in = None
-        self.scope = None
 
     @property
     def url(self):
@@ -116,18 +170,6 @@ class Cloud:
         self.scope = content['scope']
 
         return response
-
-    def seconds_until_auth_expires(self):
-        if self._last_refresh is None:
-            print('No initial authentication time.')
-        elif self._last_refresh < 0:
-            print('API access expired {0} seconds ago.'.format(self._last_refresh - self._expires_in))
-        else:
-            elapsed = time.time() - self._last_refresh
-            return self._expires_in - elapsed
-
-    def datetime_auth_expires_on(self):
-        return datetime.datetime.now() + datetime.timedelta(seconds=self.seconds_until_auth_expires())
 
     def test_auth(self):
         license_url = r'https://platform.uipath.com/odata/Settings/UiPath.Server.Configuration.OData.GetLicense'
