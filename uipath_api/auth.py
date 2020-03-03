@@ -14,14 +14,20 @@ class Session:
     def seconds_until_auth_expires(self):
         if self._last_refresh is None:
             print('No initial authentication time.')
+            return None
         elif self._last_refresh < 0:
             print('API access expired {0} seconds ago.'.format(self._last_refresh - self._expires_in))
+            return None
         else:
             elapsed = time.time() - self._last_refresh
             return self._expires_in - elapsed
 
     def datetime_auth_expires_on(self):
-        return datetime.datetime.now() + datetime.timedelta(seconds=self.seconds_until_auth_expires())
+        seconds = self.seconds_until_auth_expires()
+        if seconds:
+            return datetime.datetime.now() + datetime.timedelta(seconds=seconds)
+        else:
+            return None
 
 
 class Local(Session):
