@@ -11,6 +11,15 @@ class Session:
     _expires_in = None
     scope = None
 
+    def ok(self):
+        try:
+            if self.seconds_until_auth_expires() <= 0:
+                return False
+            else:
+                return True
+        except TypeError:
+            raise TypeError('Session is not authenticated.')
+
     def seconds_until_auth_expires(self):
         if self._last_refresh is None:
             print('No initial authentication time.')
